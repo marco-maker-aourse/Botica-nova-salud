@@ -1,8 +1,10 @@
 import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import DashboardLayout from "../layouts/DashboardLayout";
+import { isFirebaseConfigured } from "../firebase/config";
 import ProtectedRoute from "./ProtectedRoute";
 
+const FirebaseSetupPage = lazy(() => import("../pages/auth/FirebaseSetupPage"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const DashboardPage = lazy(() => import("../pages/dashboard/DashboardPage"));
 const ProductsPage = lazy(() => import("../pages/inventory/ProductsPage"));
@@ -26,6 +28,12 @@ function AppRouter() {
       }
     >
       <Routes>
+        {!isFirebaseConfigured ? (
+          <>
+            <Route path="*" element={<FirebaseSetupPage />} />
+          </>
+        ) : (
+          <>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
@@ -42,6 +50,8 @@ function AppRouter() {
           </Route>
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </>
+        )}
       </Routes>
     </Suspense>
   );

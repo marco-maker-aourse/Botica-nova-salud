@@ -23,7 +23,7 @@ service cloud.firestore {
 
     match /usuarios/{userId} {
       allow read: if isSignedIn() && (request.auth.uid == userId || hasRole('admin'));
-      allow create: if isSignedIn() && hasRole('admin');
+      allow create: if isSignedIn() && request.auth.uid == userId;
       allow update: if isSignedIn() && (request.auth.uid == userId || hasRole('admin'));
       allow delete: if hasRole('admin');
     }

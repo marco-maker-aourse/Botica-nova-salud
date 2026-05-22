@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../layouts/AuthLayout";
-import { loginWithEmail } from "../../services/authService";
+import { createInitialAccess, loginWithEmail } from "../../services/authService";
 import InputField from "../../components/ui/InputField";
 import Button from "../../components/ui/Button";
 
@@ -13,9 +13,11 @@ function LoginPage() {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors },
   } = useForm({
     defaultValues: {
+      nombreCompleto: "Administrador Nova Salud",
       email: "admin@novasalud.pe",
       password: "123456789",
     },
@@ -44,6 +46,38 @@ function LoginPage() {
     }
   };
 
+  const handleCreateAccess = async () => {
+    const values = getValues();
+
+    if (!values.email || !values.password) {
+      Swal.fire({
+        icon: "warning",
+        title: "Completa los datos",
+        text: "Ingresa nombre, correo y contrasena para crear el acceso inicial.",
+      });
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await createInitialAccess(values);
+      Swal.fire({
+        icon: "success",
+        title: "Acceso inicial creado",
+        text: "El usuario ya existe en Authentication y su perfil fue guardado en Firestore.",
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "No se pudo crear el acceso",
+        text: error.message,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <AuthLayout>
       <div className="w-full max-w-md">
@@ -53,6 +87,11 @@ function LoginPage() {
           Ingresa con tu cuenta corporativa para acceder al dashboard, inventario, ventas y reportes.
         </p>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
+          <InputField
+            label="Nombre completo"
+            register={register("nombreCompleto", { required: "Nombre obligatorio" })}
+            error={errors.nombreCompleto?.message}
+          />
           <InputField
             label="Correo"
             type="email"
@@ -68,7 +107,14 @@ function LoginPage() {
           <Button type="submit" className="w-full" disabled={submitting}>
             {submitting ? "Validando..." : "Iniciar sesion"}
           </Button>
+          <Button type="button" variant="secondary" className="w-full" disabled={submitting} onClick={handleCreateAccess}>
+            Crear acceso inicial
+          </Button>
         </form>
+        <p className="mt-4 text-xs leading-6 text-slate-500">
+          `Iniciar sesion` usa Firebase Authentication. `Crear acceso inicial` crea la cuenta y guarda el perfil en
+          `usuarios` de Firestore.
+        </p>
       </div>
     </AuthLayout>
   );
