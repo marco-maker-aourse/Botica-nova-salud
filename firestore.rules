@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function hasRole(role) {
+      return isSignedIn() && userDoc().data.rol == role;
+    }
+
+    function isAdminOrSeller() {
+      return hasRole('admin') || hasRole('vendedor');
+    }
+
+    function validString(value, max) {
+      return value is string && value.size() > 0 && value.size() <= max;
+    }
+
+    match /usuarios/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || hasRole('admin'));
+      allow create: if isSignedIn() && hasRole('admin');
+      allow update: if isSignedIn() && (request.auth.uid == userId || hasRole('admin'));
+      allow delete: if hasRole('admin');
+    }
+
+    match /productos/{productoId} {
+      allow read: if isAdminOrSeller();
+      allow create, update: if isAdminOrSeller()
+        && validString(request.resource.data.nombre, 120)
+        && request.resource.data.stock is number
+        && request.resource.data.stockMinimo is number
+        && request.resource.data.precioVenta is number;
+      allow delete: if hasRole('admin');
+    }
+
+    match /ventas/{ventaId} {
+      allow read, create: if isAdminOrSeller();
+      allow update: if hasRole('admin');
+      allow delete: if false;
+    }
+
+    match /clientes/{clienteId} {
+      allow read, create, update: if isAdminOrSeller();
+      allow delete: if hasRole('admin');
+    }
+
+    match /movimientosInventario/{movimientoId} {
+      allow read, create: if isAdminOrSeller();
+      allow update, delete: if false;
+    }
+
+    match /alertas/{alertaId} {
+      allow read, update: if isAdminOrSeller();
+      allow create: if isAdminOrSeller();
+      allow delete: if hasRole('admin');
+    }
+
+    match /categorias/{categoriaId} {
+      allow read: if isAdminOrSeller();
+      allow create, update, delete: if hasRole('admin');
+    }
+
+    match /proveedores/{proveedorId} {
+      allow read: if isAdminOrSeller();
+      allow create, update, delete: if hasRole('admin');
+    }
+  }
+}
