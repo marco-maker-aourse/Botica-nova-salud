@@ -17,8 +17,8 @@ function LoginPage() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      nombreCompleto: "Administrador Nova Salud",
-      email: "admin@novasalud.pe",
+      nombreCompleto: "Administrador",
+      email: "admin@gmail.com",
       password: "123456789",
     },
   });
@@ -84,7 +84,7 @@ function LoginPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand-600">Acceso seguro</p>
         <h1 className="mt-4 text-3xl font-bold text-slate-900">Gestiona la botica desde un solo lugar</h1>
         <p className="mt-3 text-sm leading-6 text-slate-500">
-          Ingresa con tu cuenta corporativa para acceder al dashboard, inventario, ventas y reportes.
+          Ingresa con tu cuenta  para acceder al dashboard, inventario, ventas y reportes.
         </p>
         <form onSubmit={handleSubmit(onSubmit)} className="mt-8 space-y-5">
           <InputField
@@ -111,10 +111,7 @@ function LoginPage() {
             Crear acceso inicial
           </Button>
         </form>
-        <p className="mt-4 text-xs leading-6 text-slate-500">
-          `Iniciar sesion` usa Firebase Authentication. `Crear acceso inicial` crea la cuenta y guarda el perfil en
-          `usuarios` de Firestore.
-        </p>
+
       </div>
     </AuthLayout>
   );
