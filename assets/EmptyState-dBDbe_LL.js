@@ -1,0 +1,1 @@
+import{j as e}from"./motion-DEtnMsoA.js";function a({title:t,description:s}){return e.jsxs("div",{className:"rounded-3xl border border-dashed border-slate-300 bg-white/80 px-6 py-10 text-center",children:[e.jsx("h3",{className:"text-lg font-semibold text-slate-900",children:t}),e.jsx("p",{className:"mt-2 text-sm text-slate-500",children:s})]})}export{a as E};
